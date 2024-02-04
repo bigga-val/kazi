@@ -1,0 +1,17 @@
+{{ form_start(form) }}
+{#    {{ form_widget(form) }}#}
+    <div>
+        <label for="">Nom du Produit</label>
+        {{ form_widget(form.designation, {'attr': {'class': 'form-input'}}) }}
+    </div>
+    <div>
+        <label for="">Description</label>
+        {{ form_widget(form.description, {'attr': {'class': 'form-input'}}) }}
+    </div>
+    <div>
+        <label for="">Prix unitaire</label>
+        {{ form_widget(form.prixUnitaire, {'attr': {'class': 'form-input'}}) }}
+    </div>
+<br>
+    <button class="btn btn-success">{{ button_label|default('Save') }}</button>
+{{ form_end(form) }}

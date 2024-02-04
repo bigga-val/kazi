@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+
+<title>BonProduit index</title>
+
+{% block body %}
+    <h1>BonProduit index</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>CreatedBY</th>
+                <th>CreatedAt</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for bon_produit in bon_produits %}
+            <tr>
+                <td>{{ bon_produit.id }}</td>
+                <td>{{ bon_produit.createdBY }}</td>
+                <td>{{ bon_produit.createdAt ? bon_produit.createdAt|date('Y-m-d H:i:s') : '' }}</td>
+                <td>
+                    <a href="{{ path('app_bon_produit_show', {'id': bon_produit.id}) }}">show</a>
+                    <a href="{{ path('app_bon_produit_edit', {'id': bon_produit.id}) }}">edit</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="4">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+{#    <a href="{{ path('app_bon_produit_new') }}">Create new</a>#}
+{% endblock %}

@@ -1,0 +1,195 @@
+{% extends 'components/layout/default.html.twig' %}
+
+{% block title %}Modifier un bon{% endblock %}
+
+{% block content %}
+    <div class="flex justify-end">
+        <a class="btn btn-primary btn-sm mx-3" href="{{ path('app_facture_bon', {'id':facture.id}) }}">Voir la liste</a>
+
+{#        <a class="btn btn-success mx-3" href="{{ path('app_bon_produit_edit', {'id': bon_produit.id}) }}">Modifier</a>#}
+
+        {{ include('bon_produit/_delete_form.html.twig') }}
+
+    </div>
+    <br>
+    <div class="panel">
+        <div class="flex justify-between">
+            <div>
+                <h1>No: {{ bon_produit.numero }}</h1>
+                <h1>Facture No: {{ bon_produit.facture.numeroFacture }}</h1>
+                <input type="hidden" value="{{ bon_produit.id }}" id="bonID">
+            </div>
+            <div>
+
+                <h1>Client: {{ facture.client.nom }}</h1>
+                <h1>{{ facture.client.adressephysique }}</h1>
+                <h1>{{ facture.client.telephone }}</h1>
+                <h1>{{ facture.client.email }}</h1>
+
+            </div>
+        </div>
+        <div>
+            <br>
+            <h1>Liste des produits</h1>
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>Produits</th>
+                    <th>Prix Unitaire</th>
+                    <th>Quantite</th>
+                    <th>Total</th>
+                    <th>Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% set subtotal = 0 %}
+                {% if(bon_produit.facture.typeBien == "produit") %}
+                {% for LigneFacture in lignesFacture %}
+{#                    {% set classes = "" %}#}
+{#                    {% for ligne in lignesBon %}#}
+{#                        {% if LigneFacture.id == ligne.LigneFacture.id %}#}
+{#                            {% set classes = "" %}#}
+{#                        {% else %}#}
+{#                            {% set classes = "bg-danger text-white" %}#}
+
+{#                        {% endif %}#}
+{#                    {% endfor %}#}
+                    <tr class="saveable" id="{{ LigneFacture.id }}">
+                        <td>{{ LigneFacture.Produit.designation }}</td>
+                        <td>{{ LigneFacture.prix }}</td>
+                        <td>{{ LigneFacture.quantite }}</td>
+                        {% set mytotal = LigneFacture.quantite * LigneFacture.prix %}
+                        {% set subtotal = subtotal + mytotal %}
+                        <td>{{ mytotal }}</td>
+                        <td>
+                            <button class="btn btn-primary btn-sm btnLigne" title="Enlever du bon">X</button>
+                        </td>
+                    </tr>
+                {% endfor %}
+                {% else %}
+                    {% for LigneFacture in lignesFacture %}
+                        {#                    {% set classes = "" %}#}
+                        {#                    {% for ligne in lignesBon %}#}
+                        {#                        {% if LigneFacture.id == ligne.LigneFacture.id %}#}
+                        {#                            {% set classes = "" %}#}
+                        {#                        {% else %}#}
+                        {#                            {% set classes = "bg-danger text-white" %}#}
+
+                        {#                        {% endif %}#}
+                        {#                    {% endfor %}#}
+                        <tr class="saveable" id="{{ LigneFacture.id }}">
+                            <td>{{ LigneFacture.Service.designation }}</td>
+                            <td>{{ LigneFacture.prix }}</td>
+                            <td>{{ LigneFacture.quantite }}</td>
+                            {% set mytotal = LigneFacture.quantite * LigneFacture.prix %}
+                            {% set subtotal = subtotal + mytotal %}
+                            <td>{{ mytotal }}</td>
+                            <td>
+                                <button class="btn btn-primary btn-sm btnLigne" title="Enlever du bon">X</button>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% endif %}
+                <tr class="bg-secondary-light">
+                    <td colspan="2"></td>
+                    <td>Sous-Total :</td>
+                    <td> {{ subtotal }}</td>
+                </tr><tr>
+                    <td colspan="2"></td>
+                    <td>TVA(%) :</td>
+                    <td> {{ bon_produit.facture.tax }}</td>
+                </tr><tr>
+                    <td colspan="2"></td>
+                    <td>Reduction(%) :</td>
+                    <td> {{ bon_produit.facture.discount }}</td>
+                </tr>
+                {% set taxable = subtotal + ((subtotal *bon_produit.facture.tax)/100) %}
+                {% set reductible = (subtotal * bon_produit.facture.discount)/100 %}
+                {% set grandTotal = taxable - reductible %}
+                <tr>
+                    <td colspan="2"></td>
+                    <td>Grand-Total :</td>
+                    <td> {{ grandTotal }}</td>
+                </tr>
+                </tbody>
+            </table>
+
+
+        </div>
+        <br>
+        <div class="flex justify-start">
+            <button id="btnEditBon" class="btn btn-primary ">Enregister</button>
+            <a class="btn btn-outline-danger  mx-3" href="{{ path('app_bon_produit_show', {'id':bon_produit.id}) }}">Annuler</a>
+
+        </div>
+    </div>
+
+
+    <script src="{{ asset('assets/js/jquery.min.js') }}"></script>
+
+
+    <script>
+        $(".btnLigne").on('click', function(e){
+            $(this).parent('td').parent('tr').toggleClass('bg-danger text-white saveable')
+            if($(this).text() == 'X'){
+                $(this).text('+').attr('title','Ajouter au bon')
+            }else if($(this).text() == '+'){
+                $(this).text('X').attr('title','Enlever au bon')
+            }
+        })
+        $("#btnEditBon").on('click', function(e){
+            $("a, button, span").attr("disabled", true)
+            console.log("bien")
+            let bonID = $("#bonID").val()
+            console.log(bonID)
+            $.ajax({
+                url: '/ligne/bon/produit/jsondeleteAll?'+
+                    // url: '/bon/produit/createBon?' +
+                    'bonID=' +bonID,
+                method: 'GET',
+                data: {
+                },
+                success: function (response) {
+                    console.log(response)
+                    console.log("ok bien")
+                    if(response){
+                        $(".saveable").each(function(e, i){
+                            // console.log(i)
+                            // console.log(e)
+                            // console.log($(this).attr("id"))
+                            $.ajax({
+                                url: '/ligne/bon/produit/jsonnew?'+
+                                    // url: '/bon/produit/createBon?' +
+                                    'bonID=' +bonID+
+                                    '&ligneID='+ $(this).attr("id"),
+                                method: 'GET',
+                                data: {
+                                },
+                                success: function (response) {
+                                    console.log(response)
+                                    console.log("ok bien")
+                                    if(response){
+                                        // Redirect to another route with parameters
+                                        window.location.href = "/bon/produit/"+bonID;
+
+                                    }
+                                },
+                                error: function (e) {
+                                    console.log('Erreur lors de la requête AJAX.');
+                                    console.log(e)
+                                    // Autres actions à effectuer en cas d'erreur
+                                }
+                            })
+                        })
+                    }
+
+                },
+                error: function (e) {
+                    console.log('Erreur lors de la requête AJAX.');
+                    console.log(e)
+                    // Autres actions à effectuer en cas d'erreur
+                }
+            })
+        })
+    </script>
+{% endblock %}

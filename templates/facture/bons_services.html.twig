@@ -1,0 +1,50 @@
+{% extends 'components/layout/default.html.twig' %}
+{% block title %}Liste des bons de facture{% endblock %}
+
+{% block content %}
+    <div class="panel ">
+        <h1>Facture No: {{ facture.numeroFacture }}</h1>
+        <h1>Client : {{ facture.client.nom }}</h1>
+    </div>
+    <br>
+    <div class="panel">
+        <div class="flex justify-between">
+            <h1>Liste des bons</h1>
+            <a href="{{ path("app_bon_produit_new", {'id':facture.id}) }}" class="btn btn-primary btn-sm">Creer</a>
+
+        </div>
+        <br>
+        <div class="table-responsive panel-body">
+            <input type="text" class="form-input mb-3" id="myInput" placeholder="Rechercher..." title="Tapez ici">
+
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>#</th>
+                    <th>No Bon</th>
+                    <th>Date de creation</th>
+                    <th>actions</th>
+                </tr>
+                </thead>
+                <tbody id="myTable">
+                {% set counter = 1 %}
+                {% for bon in bons %}
+                    <tr>
+                        <td>{{ counter }}</td>
+                        <td>{{ bon.numero }}</td>
+                        <td>{{ bon.createdAt | date('d-m-Y') }}</td>
+                        <td>
+                            <a href="{{ path("app_bon_produit_show", {'id':bon.id}) }}">Voir</a>
+                        </td>
+                    </tr>
+                    {% set counter = counter+1 %}
+                {% else %}
+                    <tr>
+                        <td class="text-center" colspan="7">no records found</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}

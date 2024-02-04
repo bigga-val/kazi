@@ -1,0 +1,122 @@
+{% extends 'components/layout/default.html.twig' %}
+{% block title %}Creation de nouveau bon{% endblock %}
+
+{% block content %}
+    <div class="panel ">
+
+        <h1>Creation de bon</h1>
+        <div>
+            <label for="">Facture No</label>
+            <input type="text" class="form-input" readonly="readonly" name="{{ facture.id }}" id="factureID" value="{{ facture.numeroFacture }}">
+        </div>
+        <div>
+            <label for="">No Bon</label>
+            <input type="text" class="form-input" readonly name="numeroBon" id="numeroBon" value="{{ nextNbre }}">
+        </div>
+        <div>
+            <label for="">Produits</label>
+            <hr>
+            <table>
+                <thead>
+                    <th>{{ facture.typeBien | capitalize }}</th>
+                    <th>Quantite</th>
+                    <th>Prix Unitaire</th>
+                    <th>Actions</th>
+                </thead>
+                <tbody>
+                    {% if facture.typeBien == "service" %}
+                        {% for ligne in lignes %}
+                            <tr class="saveable" id="{{ ligne.id }}">
+                                <td>{{ ligne.service.designation | capitalize }}</td>
+                                <td>{{ ligne.quantite }}</td>
+                                <td>{{ ligne.prix }}</td>
+                                <td>
+                                    <button class="btn btn-primary btn-sm btnLigne" title="Enlever du bon">X</button>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    {% else %}
+                    {% for ligne in lignes %}
+                        <tr class="saveable" id="{{ ligne.id }}">
+                            <td>{{ ligne.produit.designation | capitalize }}</td>
+                            <td>{{ ligne.quantite }}</td>
+                            <td>{{ ligne.prix }}</td>
+                            <td>
+                                <button class="btn btn-primary btn-sm btnLigne" title="Enlever du bon">X</button>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% endif %}
+                </tbody>
+            </table>
+        </div>
+        <button class="btn btn-success" id="btnSaveBon">Enregistrer</button>
+        <a class="btn btn-primary btn-sm" href="{{ path('app_bon_produit_index') }}">Voir la liste</a>
+    </div>
+    <script src="{{ asset('assets/js/jquery.min.js') }}"></script>
+
+    <script>
+        $(document).ready(function(e){
+            $(".btnLigne").on('click', function(e){
+                $(this).parent('td').parent('tr').toggleClass('bg-danger text-white saveable')
+                if($(this).text() == 'X'){
+                    $(this).text('+').attr('title','Ajouter au bon')
+                }else if($(this).text() == '+'){
+                    $(this).text('X').attr('title','Enlever au bon')
+                }
+            })
+            let factureID = $("#factureID").attr('name')
+            $("#btnSaveBon").on('click', function(e){
+                $("a, button, span").attr("disabled", true)
+
+                $.ajax({
+                     url: '/bon/produit/jsoncreerbon?'+
+                    // url: '/bon/produit/createBon?' +
+                         'factureID=' +factureID+
+                         '&numeroBon='+ $("#numeroBon").val(),
+                    method: 'GET',
+                    data: {
+                    },
+                    success: function (response) {
+                        console.log(response)
+                        let bonID = response["bonID"]
+
+                        $(".saveable").each(function(e, i){
+                            // console.log(i)
+                            // console.log(e)
+                            // console.log($(this).attr("id"))
+                            $.ajax({
+                                url: '/ligne/bon/produit/jsonnew?'+
+                                    // url: '/bon/produit/createBon?' +
+                                    'bonID=' +bonID+
+                                    '&ligneID='+ $(this).attr("id"),
+                                method: 'GET',
+                                data: {
+                                },
+                                success: function (response) {
+                                    console.log(response)
+                                    console.log("ok bien")
+                                    if(response){
+                                        // Redirect to another route with parameters
+                                        window.location.href = "/bon/produit/"+bonID;
+
+                                    }
+                                },
+                                error: function (e) {
+                                    console.log('Erreur lors de la requête AJAX.');
+                                    console.log(e)
+                                    // Autres actions à effectuer en cas d'erreur
+                                }
+                            })
+                        })
+                    },
+                    error: function (e) {
+                        console.log('Erreur lors de la requête AJAX.');
+                        console.log(e)
+                        // Autres actions à effectuer en cas d'erreur
+                    }
+                })
+            })
+        })
+    </script>
+{% endblock %}

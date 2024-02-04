@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+
+<title>Edit LigneBonProduit</title>
+
+{% block body %}
+    <h1>Edit LigneBonProduit</h1>
+
+    {{ include('ligne_bon_produit/_form.html.twig', {'button_label': 'Update'}) }}
+
+    <a href="{{ path('app_ligne_bon_produit_index') }}">back to list</a>
+
+    {{ include('ligne_bon_produit/_delete_form.html.twig') }}
+{% endblock %}

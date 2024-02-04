@@ -1,0 +1,14 @@
+{% extends 'components/layout/default.html.twig' %}
+
+{% block title %}Nouveau Client{% endblock %}
+
+{% block content %}
+
+
+    <h6>Creer un nouveau client</h6>
+
+    {{ include('client/_form.html.twig') }}
+    <br>
+    <a class="border border-2 p-3 m-4 text-danger rounded bg-outline-danger" href="{{ path('app_client_index') }}">Voir la liste</a></div>
+
+{% endblock %}

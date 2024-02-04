@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+
+<title>LigneBonProduit index</title>
+
+{% block body %}
+    <h1>LigneBonProduit index</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for ligne_bon_produit in ligne_bon_produits %}
+            <tr>
+                <td>{{ ligne_bon_produit.id }}</td>
+                <td>
+                    <a href="{{ path('app_ligne_bon_produit_show', {'id': ligne_bon_produit.id}) }}">show</a>
+                    <a href="{{ path('app_ligne_bon_produit_edit', {'id': ligne_bon_produit.id}) }}">edit</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="2">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_ligne_bon_produit_new') }}">Create new</a>
+{% endblock %}

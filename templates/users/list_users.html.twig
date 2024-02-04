@@ -1,0 +1,39 @@
+{% extends 'components/layout/default.html.twig' %}
+{% block title %}Liste des utilisateur{% endblock %}
+{% block content %}
+    <div class="card">
+        <div class="card-header">
+            <h1>Liste des utilisateurs</h1>
+
+        </div>
+        <div class="card-body">
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>Password</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% set i = 0 %}
+                    {% for user in users %}
+                    {% set i = i+1%}
+                        <tr>
+                            <td>{{ i }}</td>
+                            <td>{{ user.username }}</td>
+                            <td>{{ user.email }}</td>
+                            <td>********</td>
+                            <td>
+                                <a class="bg-primary text-white rounded border border-2 m-2 p-2" href="{{ path("app_user_profile", {"id": user.id}) }}">Profile</a>
+                                <a class="bg-primary text-white rounded border border-2 m-2 p-2" href="{{ path("app_reset_password", {"id": user.id}) }}">Reset Password</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}

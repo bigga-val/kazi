@@ -1,0 +1,95 @@
+{% extends 'components/layout/default.html.twig' %}
+
+{% block title %}Liste des clients{% endblock %}
+
+{% block content %}
+    <div class="flex justify-end">
+
+        <a class="btn btn-primary btn-sm mx-3" href="{{ path('app_generate_bon_pdf', {'id':bon_produit.id}) }}">Download</a>
+        <a class="btn btn-primary btn-sm" href="{{ path('app_facture_bon', {'id':facture.id}) }}">Voir la liste</a>
+
+        <a class="btn btn-success mx-3" href="{{ path('app_bon_produit_modifier', {'id': bon_produit.id}) }}">Modifier</a>
+
+        {{ include('bon_produit/_delete_form.html.twig') }}
+
+    </div>
+    <div class="panel">
+    <div class="flex justify-between">
+        <div>
+            <h1>Bon No: {{ bon_produit.numero }}</h1>
+            <h1>Facture No: {{ bon_produit.facture.numeroFacture }}</h1>
+
+        </div>
+        <h1>Client: {{ facture.client.nom }}</h1>
+
+    </div>
+    <div>
+        <br>
+        <h1>Liste des {{ bon_produit.facture.typeBien | capitalize }}s</h1>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>{{ bon_produit.facture.typeBien | capitalize }}</th>
+                    <th>Prix Unitaire</th>
+                    <th>Quantite</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% set subtotal = 0 %}
+            {% if(bon_produit.facture.typeBien == 'produit') %}
+            {% for ligne in lignesBon %}
+                <tr>
+                    <td>{{ ligne.LigneFacture.Produit.designation }}</td>
+                    <td>{{ ligne.LigneFacture.prix }}</td>
+                    <td>{{ ligne.LigneFacture.quantite }}</td>
+                    {% set mytotal = ligne.LigneFacture.quantite * ligne.LigneFacture.prix %}
+                    {% set subtotal = subtotal + mytotal %}
+                    <td>{{ mytotal }}</td>
+                </tr>
+            {% endfor %}
+            {% else %}
+                {% for ligne in lignesBon %}
+                    <tr>
+                        <td>{{ ligne.LigneFacture.Service.designation }}</td>
+                        <td>{{ ligne.LigneFacture.prix }}</td>
+                        <td>{{ ligne.LigneFacture.quantite }}</td>
+                        {% set mytotal = ligne.LigneFacture.quantite * ligne.LigneFacture.prix %}
+                        {% set subtotal = subtotal + mytotal %}
+                        <td>{{ mytotal }}</td>
+                    </tr>
+                {% endfor %}
+            {% endif %}
+            <tr class="bg-secondary-light">
+                <td colspan="2"></td>
+                <td>Sous-Total :</td>
+                <td> {{ subtotal }}</td>
+            </tr><tr>
+                <td colspan="2"></td>
+                <td>TVA(%) :</td>
+                <td> {{ bon_produit.facture.tax }}%</td>
+            </tr><tr>
+                <td colspan="2"></td>
+                <td>Reduction :</td>
+                <td> {{ bon_produit.facture.discount }}%</td>
+            </tr>
+            {% set taxable = subtotal + ((subtotal *bon_produit.facture.tax)/100) %}
+            {% set reductible = (subtotal * bon_produit.facture.discount)/100 %}
+            {% set grandTotal = taxable - reductible %}
+            <tr>
+                <td colspan="2"></td>
+                <td>Grand-Total :</td>
+                <td> {{ grandTotal }}</td>
+            </tr>
+            </tbody>
+        </table>
+
+
+    </div>
+</div>
+
+
+
+
+
+{% endblock %}
